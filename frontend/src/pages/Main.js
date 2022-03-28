@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { api } from '../services/API';
 import { Redirect, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+
+import { api } from '../services/API';
 
 class Main extends Component {
   constructor(props) {

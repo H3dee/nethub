@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { api } from '../services/API';
+import { List, AutoSizer } from 'react-virtualized';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { List, AutoSizer } from 'react-virtualized';
+
+import { api } from '../services/API';
+
 import NotFound from './NotFound';
 
 export default class Admin extends Component {

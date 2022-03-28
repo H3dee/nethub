@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { api } from '../services/API';
 import { Link } from 'react-router-dom';
+
+import { api } from '../services/API';
+
 import NotFound from './NotFound';
 
 class Registration extends Component {

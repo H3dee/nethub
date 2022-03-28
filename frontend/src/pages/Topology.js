@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { Redirect, Link } from 'react-router-dom';
-import { api } from '../services/API';
-import Cookies from 'js-cookie';
-import NotFound from './NotFound';
 import { List, AutoSizer } from 'react-virtualized';
+import Cookies from 'js-cookie';
+
+import NotFound from './NotFound';
+
+import { api } from '../services/API';
 
 class Topology extends Component {
   constructor(props) {
