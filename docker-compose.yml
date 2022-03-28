@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  react:
+    build: ./frontend
+    container_name: react
+    restart: always
+    networks:
+      network:
+        ipv4_address: 172.18.0.2
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    networks:
+      network:
+        ipv4_address: 172.18.0.5
+    ports:
+    - 80:80
+
+  go:
+    build: ./backend
+    container_name: go 
+    restart: always
+    networks:
+      network:
+        ipv4_address: 172.18.0.3
+  
+  postgres:
+    build: ./database
+    container_name: postgres
+    restart: always
+    networks: 
+      network:
+        ipv4_address: 172.18.0.4
+    volumes:
+      - "/root/nethub/database/data:/var/lib/postgres/11/main"
+    ports: 
+      - "1488:5432"
+    environment: 
+      - POSTGRES_PASSWORD=P@ssw0rd
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+          gateway: 172.18.0.1
