@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Redirect, Link, useLocation } from 'react-router-dom';
 
 import { api } from '../services/API';
+import ContiniousAuth from '../services/continiousAuth';
 
 const eventIds = {
   MOUSE_MOVE: 512,
@@ -12,7 +13,7 @@ const eventIds = {
 const eventNames = {
   [eventIds.MOUSE_MOVE]: 'mouse move',
   [eventIds.MOUSE_LEFT_DOWN]: 'mouse left down',
-  [eventIds.MOUSE_LEFT_UP]: 'mouse up down',
+  [eventIds.MOUSE_LEFT_UP]: 'mouse left up',
 };
 
 export const Authorization = () => {
@@ -26,11 +27,11 @@ export const Authorization = () => {
   });
   const [redirect, setRedirect] = useState(null);
   const [isPageObservable, setIsPageObservable] = useState(false);
+  const [collectingStartTime, setCollectingStartTime] = useState(null);
 
   const location = useLocation();
 
   const dataChunksRef = useRef([[]]);
-
   const timeoutRef = useRef(null);
   const intervalRef = useRef(null);
 
@@ -41,10 +42,14 @@ export const Authorization = () => {
       return;
     }
 
-    console.log(event);
+    const containerLength = dataChunksRef.current.length;
+    const isDataCollectingInitial = containerLength === 1;
+    const isDataChunkFirst = isDataCollectingInitial && dataChunksRef.current[0].length === 0;
 
     const eventId = eventIds[type];
-    const timestamp = +new Date();
+
+    const currentTime = new Date();
+    const timestamp = !isDataChunkFirst ? currentTime - collectingStartTime : 0;
 
     const chunk = {
       eventId,
@@ -55,8 +60,6 @@ export const Authorization = () => {
       positionY: event.pageY,
     };
 
-    const containerLength = dataChunksRef.current.length;
-    const isDataCollectingInitial = containerLength === 1;
     dataChunksRef.current[isDataCollectingInitial ? 0 : containerLength - 1].push(chunk);
   };
 
@@ -73,6 +76,7 @@ export const Authorization = () => {
   const onMouseLeftUp = createEventHandler('MOUSE_LEFT_UP');
 
   const onStartObserving = () => {
+    setCollectingStartTime(+new Date());
     setIsPageObservable(true);
 
     timeoutRef.current = setTimeout(() => {
@@ -127,6 +131,10 @@ export const Authorization = () => {
         }
       });
   };
+
+  // useEffect(() => {
+  //   ContiniousAuth.callApi();
+  // }, []);
 
   if (redirect === 'admin') {
     return <Redirect to="/topology" />;
