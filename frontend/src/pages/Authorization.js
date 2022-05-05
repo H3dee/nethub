@@ -1,20 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Redirect, Link, useLocation } from 'react-router-dom';
 
-import { api } from '../services/API';
 import ContiniousAuth from '../services/continiousAuth';
-
-const eventIds = {
-  MOUSE_MOVE: 512,
-  MOUSE_LEFT_DOWN: 513,
-  MOUSE_LEFT_UP: 514,
-};
-
-const eventNames = {
-  [eventIds.MOUSE_MOVE]: 'mouse move',
-  [eventIds.MOUSE_LEFT_DOWN]: 'mouse left down',
-  [eventIds.MOUSE_LEFT_UP]: 'mouse left up',
-};
+import { api } from '../services/API';
+import {
+  eventIds,
+  eventNames,
+  MS_PER_SECOND,
+  INITIAL_INTERVAL_TIME,
+  REGULAR_INTERVAL_TIME,
+} from '../util/continiousAuthConstants';
 
 export const Authorization = () => {
   const [form, setForm] = useState({
@@ -35,6 +30,18 @@ export const Authorization = () => {
   const timeoutRef = useRef(null);
   const intervalRef = useRef(null);
 
+  const getChunksContainerParams = () => {
+    const chunksContainerLength = dataChunksRef.current.length;
+
+    const hasOnlyOneChunk = chunksContainerLength === 1;
+    const indexOfLatestChunk = hasOnlyOneChunk ? 0 : chunksContainerLength - 1;
+
+    return {
+      hasOnlyOneChunk,
+      indexOfLatestChunk,
+    };
+  };
+
   const createEventHandler = (type) => (event) => {
     event.persist();
 
@@ -42,31 +49,36 @@ export const Authorization = () => {
       return;
     }
 
-    const containerLength = dataChunksRef.current.length;
-    const isDataCollectingInitial = containerLength === 1;
-    const isDataChunkFirst = isDataCollectingInitial && dataChunksRef.current[0].length === 0;
+    const { indexOfLatestChunk, hasOnlyOneChunk } = getChunksContainerParams();
+
+    const isRecordFirst = hasOnlyOneChunk && dataChunksRef.current[0].length === 0;
 
     const eventId = eventIds[type];
 
     const currentTime = new Date();
-    const timestamp = !isDataChunkFirst ? currentTime - collectingStartTime : 0;
+    const timestamp = !isRecordFirst ? (currentTime - collectingStartTime) / MS_PER_SECOND : 0;
 
     const chunk = {
-      eventId,
       event: eventNames[eventId],
       windowName: location.pathname,
       timestamp,
       positionX: event.pageX,
       positionY: event.pageY,
+      userId: 1,
     };
 
-    dataChunksRef.current[isDataCollectingInitial ? 0 : containerLength - 1].push(chunk);
+    dataChunksRef.current[indexOfLatestChunk].push(chunk);
   };
 
-  const onChange = (event) => {
-    event.persist();
+  const handleResetChunksContainer = () => {
+    dataChunksRef.current = [[]];
+  };
 
-    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  const handleSendLatestChunk = () => {
+    const { indexOfLatestChunk } = getChunksContainerParams();
+    const latestChunk = dataChunksRef.current[indexOfLatestChunk];
+
+    ContiniousAuth.sendRawDataChunk(latestChunk);
   };
 
   const onMouseMove = createEventHandler('MOUSE_MOVE');
@@ -75,16 +87,29 @@ export const Authorization = () => {
 
   const onMouseLeftUp = createEventHandler('MOUSE_LEFT_UP');
 
+  const onChange = (event) => {
+    event.persist();
+
+    setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
+  };
+
   const onStartObserving = () => {
+    handleResetChunksContainer();
+
     setCollectingStartTime(+new Date());
     setIsPageObservable(true);
 
     timeoutRef.current = setTimeout(() => {
-      const intervalHandler = () => dataChunksRef.current.push([]);
+      const intervalHandler = () => {
+        handleSendLatestChunk();
+        dataChunksRef.current.push([]);
+      };
 
-      intervalRef.current = setInterval(intervalHandler, 5000);
+      intervalHandler();
+
+      intervalRef.current = setInterval(intervalHandler, REGULAR_INTERVAL_TIME);
       timeoutRef.current = null;
-    }, 20_000);
+    }, INITIAL_INTERVAL_TIME);
   };
 
   const onStopObserving = () => {
@@ -97,10 +122,7 @@ export const Authorization = () => {
 
     clearInterval(intervalRef.current);
     setIsPageObservable(false);
-
-    console.log(dataChunksRef.current);
-
-    dataChunksRef.current = [[]];
+    setCollectingStartTime(null);
   };
 
   const onSubmit = (event) => {
@@ -132,10 +154,6 @@ export const Authorization = () => {
       });
   };
 
-  // useEffect(() => {
-  //   ContiniousAuth.callApi();
-  // }, []);
-
   if (redirect === 'admin') {
     return <Redirect to="/topology" />;
   } else if (redirect === '') {
@@ -162,6 +180,12 @@ export const Authorization = () => {
         style={{ position: 'absolute', top: '55px', left: '15px' }}
       >
         STOP OBSERVING
+      </button>
+      <button
+        onClick={handleSendLatestChunk}
+        style={{ position: 'absolute', top: '95px', left: '15px', backgroundColor: 'yellow' }}
+      >
+        Send chunk
       </button>
       <form className="window" onSubmit={onSubmit}>
         <div className="title title-centering margin-bottom-20">Welcome!</div>
