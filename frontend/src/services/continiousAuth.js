@@ -6,8 +6,13 @@ const instance = axios.create({
 
 class ContiniousAuth {
   sendRawDataChunk(chunk) {
-    const body = { chunks: chunk };
+    const serializedChunk = chunk.map((record) => JSON.stringify(record));
+    const filteredChunk = [...new Set(serializedChunk)];
+    const deserializedChunk = filteredChunk.map((serialisedRecord) => JSON.parse(serialisedRecord));
+
+    const body = { chunks: deserializedChunk };
     const serializedBody = JSON.stringify(body);
+
     const headers = { headers: { 'content-type': 'application/json' } };
 
     return instance.post('/chunk', serializedBody, headers);
