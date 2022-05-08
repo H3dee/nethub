@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { filterDuplicatesByField } from '../util/filterDuplicates';
 
 const instance = axios.create({
   baseURL: 'http://localhost:5000/api/continious-auth',
@@ -6,11 +7,9 @@ const instance = axios.create({
 
 class ContiniousAuth {
   sendRawDataChunk(chunk) {
-    const serializedChunk = chunk.map((record) => JSON.stringify(record));
-    const filteredChunk = [...new Set(serializedChunk)];
-    const deserializedChunk = filteredChunk.map((serialisedRecord) => JSON.parse(serialisedRecord));
+    const cleanedChunk = filterDuplicatesByField(chunk, 'timestamp');
 
-    const body = { chunks: deserializedChunk };
+    const body = { chunks: cleanedChunk };
     const serializedBody = JSON.stringify(body);
 
     const headers = { headers: { 'content-type': 'application/json' } };
