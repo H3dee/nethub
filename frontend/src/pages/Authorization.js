@@ -4,11 +4,13 @@ import { Redirect, Link, useLocation } from 'react-router-dom';
 import ContiniousAuth from '../services/continiousAuth';
 import { api } from '../services/API';
 import {
-  eventIds,
+  eventCodes,
   eventNames,
   MS_PER_SECOND,
   INITIAL_INTERVAL_TIME,
   REGULAR_INTERVAL_TIME,
+  buttonCodes,
+  buttonNames,
 } from '../util/continiousAuthConstants';
 
 export const Authorization = () => {
@@ -53,13 +55,27 @@ export const Authorization = () => {
 
     const isRecordFirst = hasOnlyOneChunk && dataChunksRef.current[0].length === 0;
 
-    const eventId = eventIds[type];
+    const PRESSED_LEFT_MOUSE_BUTTON_CODE = 1;
+    const isLeftButtonBeingPressed = event.buttons === PRESSED_LEFT_MOUSE_BUTTON_CODE;
+
+    const eventId =
+      type === 'MOUSE_MOVE' && isLeftButtonBeingPressed ? eventCodes.DRAG : eventCodes[type];
 
     const currentTime = new Date();
     const timestamp = !isRecordFirst ? (currentTime - collectingStartTime) / MS_PER_SECOND : 0;
 
+    let button = '';
+    const isMMAction = type === 'MOUSE_MOVE';
+
+    if (isMMAction) {
+      button = buttonNames[buttonCodes.NO_BUTTON];
+    } else {
+      button = buttonNames[event.button];
+    }
+
     const chunk = {
       event: eventNames[eventId],
+      button,
       windowName: location.pathname,
       timestamp,
       positionX: event.pageX,
@@ -83,9 +99,9 @@ export const Authorization = () => {
 
   const onMouseMove = createEventHandler('MOUSE_MOVE');
 
-  const onMouseLeftDown = createEventHandler('MOUSE_LEFT_DOWN');
+  const onMouseDown = createEventHandler('MOUSE_DOWN');
 
-  const onMouseLeftUp = createEventHandler('MOUSE_LEFT_UP');
+  const onMouseUp = createEventHandler('MOUSE_UP');
 
   const onChange = (event) => {
     event.persist();
@@ -123,6 +139,8 @@ export const Authorization = () => {
     clearInterval(intervalRef.current);
     setIsPageObservable(false);
     setCollectingStartTime(null);
+
+    console.log(dataChunksRef.current);
   };
 
   const onSubmit = (event) => {
@@ -162,9 +180,9 @@ export const Authorization = () => {
 
   return (
     <div
-      onMouseUp={onMouseLeftUp}
+      onMouseUp={onMouseUp}
       onMouseMove={onMouseMove}
-      onMouseDown={onMouseLeftDown}
+      onMouseDown={onMouseDown}
       className="full-screen background centering"
     >
       <button
