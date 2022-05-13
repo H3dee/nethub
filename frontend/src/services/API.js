@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const instance = axios.create({
   withCredentials: true,
-  baseURL: 'http://rt.wsr39.online/api',
+  baseURL: 'http://rt.au.team/api',
 });
 
 export const api = {
