@@ -20,6 +20,9 @@ const buttonStyles = {
   width: '132px',
 };
 
+const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED;
+const IS_IN_TRAINING_MODE = process.env.REACT_APP_CONTINUOUS_AUTH_MODE === 'training';
+
 const ContinuousAuthObserver = ({ children, ...props }) => {
   const [isPageObservable, setIsPageObservable] = useState(false);
   const [collectingStartTime, setCollectingStartTime] = useState(null);
@@ -43,11 +46,11 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
   };
 
   const createEventHandler = (type) => (event) => {
-    event.persist();
-
-    if (!isPageObservable) {
+    if (!isPageObservable || !IS_CONTINUOUS_AUTH_ENABLED) {
       return;
     }
+
+    event.persist();
 
     const { indexOfLatestChunk, hasOnlyOneChunk } = getChunksContainerParams();
 
@@ -102,6 +105,10 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
   const onMouseUp = createEventHandler('MOUSE_UP');
 
   const onStartObserving = () => {
+    if (!IS_CONTINUOUS_AUTH_ENABLED) {
+      return;
+    }
+
     handleResetChunksContainer();
 
     setCollectingStartTime(+new Date());
@@ -135,29 +142,33 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
 
   return (
     <div onMouseUp={onMouseUp} onMouseMove={onMouseMove} onMouseDown={onMouseDown} {...props}>
-      <button
-        onClick={onStartObserving}
-        disabled={isPageObservable}
-        style={{
-          ...buttonStyles,
-          bottom: '55px',
-          left: '15px',
-        }}
-      >
-        START OBSERVING
-      </button>
-      <button
-        onClick={onStopObserving}
-        disabled={!isPageObservable}
-        style={{
-          ...buttonStyles,
-          bottom: '15px',
-          left: '15px',
-        }}
-      >
-        STOP OBSERVING
-      </button>
-      <TimeCounter collectingStartTime={collectingStartTime} />
+      {IS_CONTINUOUS_AUTH_ENABLED && (
+        <React.Fragment>
+          <button
+            onClick={onStartObserving}
+            disabled={isPageObservable}
+            style={{
+              ...buttonStyles,
+              bottom: '55px',
+              left: '15px',
+            }}
+          >
+            START OBSERVING
+          </button>
+          <button
+            onClick={onStopObserving}
+            disabled={!isPageObservable}
+            style={{
+              ...buttonStyles,
+              bottom: '15px',
+              left: '15px',
+            }}
+          >
+            STOP OBSERVING
+          </button>
+          {IS_IN_TRAINING_MODE && <TimeCounter collectingStartTime={collectingStartTime} />}
+        </React.Fragment>
+      )}
       {children}
     </div>
   );
