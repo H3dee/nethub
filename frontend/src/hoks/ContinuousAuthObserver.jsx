@@ -18,6 +18,7 @@ const buttonStyles = {
   padding: '5px 10px',
   borderRadius: '5px',
   width: '132px',
+  cursor: 'pointer',
 };
 
 const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED;
@@ -81,7 +82,7 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
       timestamp,
       positionX: event.pageX,
       positionY: event.pageY,
-      userId: 3,
+      userId: 1,
     };
 
     dataChunksRef.current[indexOfLatestChunk].push(chunk);
