@@ -21,7 +21,7 @@ const buttonStyles = {
   cursor: 'pointer',
 };
 
-const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED;
+const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED === "true";
 const IS_IN_TRAINING_MODE = process.env.REACT_APP_CONTINUOUS_AUTH_MODE === 'training';
 
 const ContinuousAuthObserver = ({ children, ...props }) => {
