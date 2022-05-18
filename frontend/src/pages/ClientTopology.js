@@ -3,6 +3,7 @@ import { Redirect, Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 import { api } from '../services/API';
+import ContinuousAuthObserver from '../hoks/ContinuousAuthObserver';
 
 import NotFound from './NotFound';
 
@@ -202,7 +203,7 @@ class ClientTopology extends Component {
     } else if (!Cookies.get('tokenAccess')) return <Redirect to="/authorization" />;
     else {
       return (
-        <div className="full-screen">
+        <ContinuousAuthObserver className="full-screen">
           <div
             className="grid-client grab"
             onMouseDown={this.gridClick}
@@ -443,7 +444,7 @@ class ClientTopology extends Component {
               );
             }
           })}
-        </div>
+        </ContinuousAuthObserver>
       );
     }
   }

@@ -19,6 +19,7 @@ const buttonStyles = {
   borderRadius: '5px',
   width: '132px',
   cursor: 'pointer',
+  boxShadow: '0 2px 10px 0 rgb(0 0 0 / 50%)'
 };
 
 const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED === "true";
@@ -139,6 +140,8 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
     clearInterval(intervalRef.current);
     setIsPageObservable(false);
     setCollectingStartTime(null);
+
+    IS_IN_TRAINING_MODE && ContiniousAuth.completeDataCollecting(1)
   };
 
   return (

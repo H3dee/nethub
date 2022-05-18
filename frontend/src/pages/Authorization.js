@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Redirect, Link } from 'react-router-dom';
 
 import { api } from '../services/API';
-import ContinuousAuthObserver from '../hoks/ContinuousAuthObserver';
 
 export const Authorization = () => {
   const [form, setForm] = useState({
@@ -57,7 +56,7 @@ export const Authorization = () => {
   }
 
   return (
-    <ContinuousAuthObserver
+    <div
       className="full-screen background centering"
     >
       <form className="window" onSubmit={onSubmit}>
@@ -90,7 +89,7 @@ export const Authorization = () => {
           </Link>
         </div>
       </form>
-    </ContinuousAuthObserver>
+    </div>
   );
 };
 
