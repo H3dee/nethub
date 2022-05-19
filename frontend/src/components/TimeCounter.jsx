@@ -35,7 +35,11 @@ export const TimeCounter = ({ collectingStartTime }) => {
     intervalRef.current = setInterval(intervalHandler, TIMER_STEP);
   }, [collectingStartTime]);
 
-  return <div className="time-counter">{Boolean(timeFromStart) ? timeFromStart : '00 : 00'}</div>;
+  return (
+    <div style={{ zIndex: '1000' }} className="time-counter">
+      {Boolean(timeFromStart) ? timeFromStart : '00 : 00'}
+    </div>
+  );
 };
 
 export default TimeCounter;

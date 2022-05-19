@@ -19,10 +19,11 @@ const buttonStyles = {
   borderRadius: '5px',
   width: '132px',
   cursor: 'pointer',
-  boxShadow: '0 2px 10px 0 rgb(0 0 0 / 50%)'
+  boxShadow: '0 2px 10px 0 rgb(0 0 0 / 50%)',
+  zIndex: '100000',
 };
 
-const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED === "true";
+const IS_CONTINUOUS_AUTH_ENABLED = process.env.REACT_APP_IS_CONTINUOUS_AUTH_ENABLED === 'true';
 const IS_IN_TRAINING_MODE = process.env.REACT_APP_CONTINUOUS_AUTH_MODE === 'training';
 
 const ContinuousAuthObserver = ({ children, ...props }) => {
@@ -59,10 +60,13 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
     const isRecordFirst = hasOnlyOneChunk && dataChunksRef.current[0].length === 0;
 
     const PRESSED_LEFT_MOUSE_BUTTON_CODE = 1;
-    const isLeftButtonBeingPressed = event.buttons === PRESSED_LEFT_MOUSE_BUTTON_CODE;
+    const PRESSED_RIGHT_MOUSE_BUTTON_CODE = 2;
+    const isMouseButtonBeingPressed =
+      event.buttons === PRESSED_LEFT_MOUSE_BUTTON_CODE ||
+      event.buttons === PRESSED_RIGHT_MOUSE_BUTTON_CODE;
 
     const eventId =
-      type === 'MOUSE_MOVE' && isLeftButtonBeingPressed ? eventCodes.DRAG : eventCodes[type];
+      type === 'MOUSE_MOVE' && isMouseButtonBeingPressed ? eventCodes.DRAG : eventCodes[type];
 
     const currentTime = new Date();
     const timestamp = !isRecordFirst ? (currentTime - collectingStartTime) / MS_PER_SECOND : 0;
@@ -83,7 +87,7 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
       timestamp,
       positionX: event.pageX,
       positionY: event.pageY,
-      userId: 1,
+      userId: 2,
     };
 
     dataChunksRef.current[indexOfLatestChunk].push(chunk);
@@ -141,7 +145,7 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
     setIsPageObservable(false);
     setCollectingStartTime(null);
 
-    IS_IN_TRAINING_MODE && ContiniousAuth.completeDataCollecting(1)
+    IS_IN_TRAINING_MODE && ContiniousAuth.completeDataCollecting(2);
   };
 
   return (

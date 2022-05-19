@@ -3,7 +3,7 @@ import axios from 'axios';
 import { filterDuplicatesByField } from '../util/filterDuplicates';
 
 const instance = axios.create({
-  baseURL: 'https://463b-37-139-35-16.eu.ngrok.io/api/continious-auth',
+  baseURL: 'https://e9a9-37-139-35-16.eu.ngrok.io/api/continious-auth',
 });
 
 const mode = process.env.REACT_APP_CONTINUOUS_AUTH_MODE;

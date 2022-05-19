@@ -3,9 +3,10 @@ import { Redirect, Link } from 'react-router-dom';
 import { List, AutoSizer } from 'react-virtualized';
 import Cookies from 'js-cookie';
 
-import NotFound from './NotFound';
-
 import { api } from '../services/API';
+import ContinuousAuthObserver from '../hoks/ContinuousAuthObserver';
+
+import NotFound from './NotFound';
 
 class Topology extends Component {
   constructor(props) {
@@ -898,7 +899,7 @@ class Topology extends Component {
       return <Redirect to="/authorization" />;
     } else {
       return (
-        <div className="full-screen" onMouseUp={this.allClick}>
+        <ContinuousAuthObserver className="full-screen">
           {this.state.settings.name && (
             <div className="block-content">
               <div className="modal-window">
@@ -1236,6 +1237,7 @@ class Topology extends Component {
           <div
             className="grid"
             onMouseDown={this.gridClick}
+            onMouseUp={this.allClick}
             style={{
               backgroundPositionX: this.state.grid[0],
               backgroundPositionY: this.state.grid[1],
@@ -1428,7 +1430,7 @@ class Topology extends Component {
               </svg>
             </div>
           </div>
-        </div>
+        </ContinuousAuthObserver>
       );
     }
   }

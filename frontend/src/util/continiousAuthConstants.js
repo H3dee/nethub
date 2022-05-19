@@ -1,5 +1,5 @@
 export const MS_PER_SECOND = 1_000;
-export const REGULAR_INTERVAL_TIME = 5_000;
+export const REGULAR_INTERVAL_TIME = 15_000;
 export const INITIAL_INTERVAL_TIME = 20_000;
 
 export const eventCodes = {
