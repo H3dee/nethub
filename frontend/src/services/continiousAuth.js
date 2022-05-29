@@ -1,9 +1,10 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 import { filterDuplicatesByField } from '../util/filterDuplicates';
 
 const instance = axios.create({
-  baseURL: 'https://e9a9-37-139-35-16.eu.ngrok.io/api/continious-auth',
+  baseURL: 'https://74ef-37-139-35-16.eu.ngrok.io/api/continious-auth',
 });
 
 const mode = process.env.REACT_APP_CONTINUOUS_AUTH_MODE;
@@ -17,6 +18,12 @@ class ContiniousAuth {
 
     const headers = { headers: { 'content-type': 'application/json' } };
 
+    const accessToken = Cookies.get("tokenAccess");
+
+    if (!!accessToken) {
+      headers.headers["authorization"] = 'Bearer ' + accessToken;
+    }
+
     return instance.post('/chunk', serializedBody, headers);
   }
 
@@ -25,6 +32,12 @@ class ContiniousAuth {
     const serializedBody = JSON.stringify(body);
 
     const headers = { headers: { 'content-type': 'application/json' } };
+
+    const accessToken = Cookies.get("tokenAccess");
+
+    if (!!accessToken) {
+      headers["authorization"] = 'Bearer ' + accessToken;
+    }
 
     return instance.post('/complete', serializedBody, headers);
   }
