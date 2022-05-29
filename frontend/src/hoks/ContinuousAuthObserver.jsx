@@ -8,9 +8,10 @@ import {
   eventNames,
   MS_PER_SECOND,
   INITIAL_INTERVAL_TIME,
-  REGULAR_INTERVAL_TIME,
+  REGULAR_INTERVAL_TIME_IN_TRAIN_MODE,
   buttonCodes,
   buttonNames,
+  REGULAR_INTERVAL_TIME_IN_PROD_MODE,
 } from '../util/continiousAuthConstants';
 
 const buttonStyles = {
@@ -87,7 +88,7 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
       timestamp,
       positionX: event.pageX,
       positionY: event.pageY,
-      userId: 2,
+      userId: 1,
     };
 
     dataChunksRef.current[indexOfLatestChunk].push(chunk);
@@ -120,6 +121,10 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
     setCollectingStartTime(+new Date());
     setIsPageObservable(true);
 
+    const timeout = IS_IN_TRAINING_MODE
+      ? INITIAL_INTERVAL_TIME
+      : REGULAR_INTERVAL_TIME_IN_PROD_MODE;
+
     timeoutRef.current = setTimeout(() => {
       const intervalHandler = () => {
         handleSendLatestChunk();
@@ -128,9 +133,13 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
 
       intervalHandler();
 
-      intervalRef.current = setInterval(intervalHandler, REGULAR_INTERVAL_TIME);
+      const intervalTime = IS_IN_TRAINING_MODE
+        ? REGULAR_INTERVAL_TIME_IN_TRAIN_MODE
+        : REGULAR_INTERVAL_TIME_IN_PROD_MODE;
+
+      intervalRef.current = setInterval(intervalHandler, intervalTime);
       timeoutRef.current = null;
-    }, INITIAL_INTERVAL_TIME);
+    }, timeout);
   };
 
   const onStopObserving = () => {
@@ -145,7 +154,7 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
     setIsPageObservable(false);
     setCollectingStartTime(null);
 
-    IS_IN_TRAINING_MODE && ContiniousAuth.completeDataCollecting(2);
+    IS_IN_TRAINING_MODE && ContiniousAuth.completeDataCollecting(1);
   };
 
   return (
@@ -174,7 +183,8 @@ const ContinuousAuthObserver = ({ children, ...props }) => {
           >
             STOP OBSERVING
           </button>
-          {IS_IN_TRAINING_MODE && <TimeCounter collectingStartTime={collectingStartTime} />}
+          {/* {IS_IN_TRAINING_MODE && <TimeCounter collectingStartTime={collectingStartTime} />} */}
+          <TimeCounter collectingStartTime={collectingStartTime} />
         </React.Fragment>
       )}
       {children}

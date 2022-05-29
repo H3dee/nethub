@@ -1,6 +1,7 @@
 export const MS_PER_SECOND = 1_000;
-export const REGULAR_INTERVAL_TIME = 15_000;
+export const REGULAR_INTERVAL_TIME_IN_TRAIN_MODE = 15_000;
 export const INITIAL_INTERVAL_TIME = 20_000;
+export const REGULAR_INTERVAL_TIME_IN_PROD_MODE = 60_000;
 
 export const eventCodes = {
   MOUSE_MOVE: 512,
